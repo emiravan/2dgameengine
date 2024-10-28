@@ -2,6 +2,7 @@
 #define ECS_H
 
 #include <bitset>
+#include <set>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
@@ -147,28 +148,63 @@ class Registry {
 
         std::unordered_map<std::type_index, System *> systems;
 
+        // Set of entities that are flagged to be added or removed in the next registry Update()
+        std::set<Entity> entitiesToBeAdded;
+        std::set<Entity> entitiesToBeKilled;
+
     public:
         Registry() = default;
 
+        // The registry Update() finally processes the entities that are waiting to be added/killed
+        void Update();
+
+        // Entity management
+        Entity CreateEntity();
+
+        // Component management
+        template <typename TComponent, typename... TArgs>
+        void AddComponent(Entity entity, TArgs &&...args);
+
         // TODO:
-        // CreateEntity()
-        // KillEntity()
+        //
         //
         // AddComponent(Entity entity)
-        // RemoveComponent(Entity entity)
-        // HasComponent(Entity entity)
         // GetComponent(Entity entity)
         //
         // AddSystem()
-        // RemoveSystem()
-        // HasSystem()
-        // GetSystem()
 };
 
 template <typename TComponent>
 void System::RequireComponent() {
     const auto componentId = Component<TComponent>::GetId();
     componentSignature.set(componentId);
+}
+
+template <typename TComponent, typename... TArgs>
+void Registry::AddComponent(Entity entity, TArgs &&..args) {
+    const auto componentId = Component<TComponent>::GetId();
+    const auto entityId = entity.GetId();
+
+    if (componentId >= componentPools.size()) {
+        componentPools.resize(componentId + 1, nullptr);
+    }
+
+    if (!componentPools[componentId] == nullptr) {
+        Pool<TComponent> *newComponentPool = new Pool<TComponent>();
+        componentPools[componentId] = newComponentPool;
+    }
+
+    Pool<TComponent> *componentPool = componentPools[componentId];
+
+    if (entityId >= componentPool->GetSize()) {
+        componentPool->Resize(numEntities);
+    }
+
+    TComponent newComponent(std::forward<TArgs>(args)...);
+
+    componentPool->Set(entityId, newComponent);
+
+    entityComponentSignatures[entityId].set(componentId);
 }
 
 #endif
