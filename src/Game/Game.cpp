@@ -1,6 +1,9 @@
 #include "Game.h"
+#include "../Components/RigidBodyComponent.h"
+#include "../Components/TransformComponent.h"
 #include "../ECS/ECS.h"
 #include "../Logger/Logger.h"
+#include "../Systems/MovementSystem.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
@@ -8,6 +11,7 @@
 
 Game::Game() {
     isRunning = false;
+    registry = std::make_unique<Registry>();
     Logger::Log("Game constructor called!");
 }
 
@@ -61,11 +65,18 @@ void Game::ProcessInput() {
 }
 
 void Game::Setup() {
-    // TODO:
-    // Entity tank = registry.CreateEntity();
-    // tank.AddComponent<TransformComponent>()
-    // tank.AddComponent<BoxColliderComponent>();
-    // tank.AddComponent<SpriteComponent>("./assets/images/tank.png");
+    // Add the systems that need to be processed in our game
+    registry->AddSystem<MovementSystem>();
+
+    // Create an entities
+    Entity tank = registry->CreateEntity();
+
+    // Add some components to that entity
+    tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+    tank.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 50.0));
+
+    // Remove a component from the entity
+    // tank.RemoveComponent<TransformComponent>();
 }
 
 void Game::Update() {
@@ -81,10 +92,12 @@ void Game::Update() {
     // Store the "previous" frame time
     millisecsPreviousFrame = SDL_GetTicks();
 
-    // TODO:
-    // MovementSystem.Update();
-    // CollisionSystem.Update();
-    // DamageSystem.Update();
+    // Ask all the systems to update
+    registry->GetSystem<MovementSystem>().Update(deltaTime);
+    // TODO: registry->GetSystem<CollisionSystem>().Update();
+
+    // Update the registry to process the entities that are waiting to be created/deleted
+    registry->Update();
 }
 
 void Game::Render() {
