@@ -15,7 +15,7 @@ class RenderSystem : public System {
             RequireComponent<SpriteComponent>();
         }
 
-        void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore) {
+        void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore) {
             // Create a vector with both Sprite and Transform component of all entities
             struct RenderableEntity {
                     TransformComponent transformComponent;
@@ -30,7 +30,7 @@ class RenderSystem : public System {
             }
 
             // Sort the vector by the z-index value
-            std::sort(renderableEntities.begin(), renderableEntities.end(), [](const RenderableEntity &a, const RenderableEntity &b) {
+            std::sort(renderableEntities.begin(), renderableEntities.end(), [](const RenderableEntity& a, const RenderableEntity& b) {
                 return a.spriteComponent.zIndex < b.spriteComponent.zIndex;
             });
 

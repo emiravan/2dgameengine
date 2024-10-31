@@ -8,7 +8,7 @@
 
 class AssetStore {
     private:
-        std::map<std::string, SDL_Texture *> textures;
+        std::map<std::string, SDL_Texture*> textures;
         // TODO: create map for fonts
         // TODO: create map for audio
 
@@ -17,9 +17,9 @@ class AssetStore {
         ~AssetStore();
 
         void ClearAssets();
-        void AddTexture(SDL_Renderer *renderer, const std::string &assetId, const std::string &filePath);
+        void AddTexture(SDL_Renderer* renderer, const std::string& assetId, const std::string& filePath);
 
-        SDL_Texture *GetTexture(const std::string &assetId);
+        SDL_Texture* GetTexture(const std::string& assetId);
 };
 
 #endif

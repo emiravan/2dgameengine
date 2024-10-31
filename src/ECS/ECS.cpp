@@ -24,7 +24,7 @@ std::vector<Entity> System::GetSystemEntities() const {
     return entities;
 }
 
-const Signature &System::GetComponentSignature() const {
+const Signature& System::GetComponentSignature() const {
     return componentSignature;
 }
 
@@ -53,8 +53,8 @@ void Registry::AddEntityToSystems(Entity entity) {
     const auto entityComponentSignature = entityComponentSignatures[entityId];
 
     // Loop all the systems
-    for (auto &system : systems) {
-        const auto &systemComponentSignature = system.second->GetComponentSignature();
+    for (auto& system : systems) {
+        const auto& systemComponentSignature = system.second->GetComponentSignature();
 
         bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature;
 

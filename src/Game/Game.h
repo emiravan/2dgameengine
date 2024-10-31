@@ -12,8 +12,8 @@ class Game {
     private:
         bool isRunning;
         int millisecsPreviousFrame = 0;
-        SDL_Window *window;
-        SDL_Renderer *renderer;
+        SDL_Window* window;
+        SDL_Renderer* renderer;
 
         std::unique_ptr<Registry> registry;
         std::unique_ptr<AssetStore> assetStore;

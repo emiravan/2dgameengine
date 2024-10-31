@@ -21,9 +21,9 @@ void AssetStore::ClearAssets() {
     textures.clear();
 }
 
-void AssetStore::AddTexture(SDL_Renderer *renderer, const std::string &assetId, const std::string &filePath) {
-    SDL_Surface *surface = IMG_Load(filePath.c_str());
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+void AssetStore::AddTexture(SDL_Renderer* renderer, const std::string& assetId, const std::string& filePath) {
+    SDL_Surface* surface = IMG_Load(filePath.c_str());
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
     // Add the texture to the map
@@ -32,6 +32,6 @@ void AssetStore::AddTexture(SDL_Renderer *renderer, const std::string &assetId, 
     Logger::Log("New texture added to the Asset Store with id = " + assetId);
 }
 
-SDL_Texture *AssetStore::GetTexture(const std::string &assetId) {
+SDL_Texture* AssetStore::GetTexture(const std::string& assetId) {
     return textures[assetId];
 }

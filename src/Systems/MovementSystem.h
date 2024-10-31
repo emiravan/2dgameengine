@@ -19,7 +19,7 @@ class MovementSystem : public System {
             //  Loop all entities that system is interested in
             for (auto entity : GetSystemEntities()) {
                 // Update entity position based on its velocity
-                auto &transform = entity.GetComponent<TransformComponent>();
+                auto& transform = entity.GetComponent<TransformComponent>();
                 const auto rigidbody = entity.GetComponent<RigidBodyComponent>();
 
                 transform.position.x += rigidbody.velocity.x * deltaTime;
