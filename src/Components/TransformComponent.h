@@ -1,7 +1,6 @@
 #ifndef TRANSFROMCOMPONENT_H
 #define TRANSFROMCOMPONENT_H
 
-#include <glm/ext/vector_float2.hpp>
 #include <glm/glm.hpp>
 
 struct TransformComponent {
