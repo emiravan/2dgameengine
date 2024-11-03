@@ -3,23 +3,21 @@
 
 #include "../Logger/Logger.h"
 #include <bitset>
-#include <cstdlib>
+#include <deque>
 #include <memory>
 #include <set>
-#include <string>
 #include <typeindex>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 const unsigned int MAX_COMPONENTS = 32;
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // Signature
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // We use a bitset (1s and 0s) to keep track of which components an entity has,
 // and also helps keep track of which entities a system is interested in.
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 typedef std::bitset<MAX_COMPONENTS> Signature;
 
 struct IComponent {
@@ -46,6 +44,7 @@ class Entity {
         Entity(int id)
             : id(id) {};
         Entity(const Entity& entity) = default;
+        void Kill();
         int GetId() const;
 
         Entity& operator=(const Entity& other) = default;
@@ -56,24 +55,22 @@ class Entity {
 
         template <typename TComponent, typename... TArgs>
         void AddComponent(TArgs&&... args);
-
         template <typename TComponent>
         void RemoveComponent();
-
         template <typename TComponent>
         bool HasComponent() const;
-
         template <typename TComponent>
         TComponent& GetComponent() const;
+
         // Hold a pointer to the entity's owner registry
         class Registry* registry;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // System
-////////////////////////////////////////////////////////////////////////////////////////
-// The system processes entities that contain a spesific signature
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// The system processes entities that contain a specific signature
+////////////////////////////////////////////////////////////////////////////////
 class System {
     private:
         Signature componentSignature;
@@ -84,7 +81,7 @@ class System {
         ~System() = default;
 
         void AddEntityToSystem(Entity entity);
-        void RemoveEntityToSystem(Entity entity);
+        void RemoveEntityFromSystem(Entity entity);
         std::vector<Entity> GetSystemEntities() const;
         const Signature& GetComponentSignature() const;
 
@@ -92,11 +89,12 @@ class System {
         template <typename TComponent>
         void RequireComponent();
 };
-////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
 // Pool
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // A pool is just a vector (contiguous data) of objects of type T
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class IPool {
     public:
         virtual ~IPool() {}
@@ -127,7 +125,7 @@ class Pool : public IPool {
         }
 
         void Clear() {
-            data.clear;
+            data.clear();
         }
 
         void Add(T object) {
@@ -147,22 +145,22 @@ class Pool : public IPool {
         }
 };
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // Registry
-////////////////////////////////////////////////////////////////////////////////////////
-// The Registry manages the creation and destruction of entities, add systems
-// and components
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// The registry manages the creation and destruction of entities, add systems,
+// and components.
+////////////////////////////////////////////////////////////////////////////////
 class Registry {
     private:
         int numEntities = 0;
 
-        // Vector of component pools, each pool contains all the data for a certain component type
+        // Vector of component pools, each pool contains all the data for a certain compoenent type
         // [Vector index = component type id]
         // [Pool index = entity id]
         std::vector<std::shared_ptr<IPool>> componentPools;
 
-        // Vector of component signatures per entity, saying which component is turned "on" for
+        // Vector of component signatures per entity, saying which component is turned "on" for a given entity
         // [Vector index = entity id]
         std::vector<Signature> entityComponentSignatures;
 
@@ -174,6 +172,9 @@ class Registry {
         std::set<Entity> entitiesToBeAdded;
         std::set<Entity> entitiesToBeKilled;
 
+        // List of free entity ids that were previously removed
+        std::deque<int> freeIds;
+
     public:
         Registry() {
             Logger::Log("Registry constructor called");
@@ -183,11 +184,12 @@ class Registry {
             Logger::Log("Registry destructor called");
         }
 
-        // The registry Update() finally processes the entities that are waiting to be added/killed
+        // The registry Update() finally processes the entities that are waiting to be added/killed to the systems
         void Update();
 
         // Entity management
         Entity CreateEntity();
+        void KillEntity(Entity entity);
 
         // Component management
         template <typename TComponent, typename... TArgs>
@@ -209,9 +211,9 @@ class Registry {
         template <typename TSystem>
         TSystem& GetSystem() const;
 
-        // Checks the component signature of an entity and add the entity to the systems
-        // that are interested in it
+        // Add and remove entities from their systems
         void AddEntityToSystems(Entity entity);
+        void RemoveEntityFromSystems(Entity entity);
 };
 
 template <typename TComponent>
@@ -253,7 +255,7 @@ void Registry::AddComponent(Entity entity, TArgs&&... args) {
     }
 
     if (!componentPools[componentId]) {
-        std::shared_ptr<Pool<TComponent>> newComponentPool = std::make_shared<Pool<TComponent>>();
+        std::shared_ptr<Pool<TComponent>> newComponentPool(new Pool<TComponent>());
         componentPools[componentId] = newComponentPool;
     }
 
