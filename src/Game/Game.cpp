@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "../Components/AnimationComponent.h"
 #include "../Components/BoxColliderComponent.h"
+#include "../Components/KeyboardControlledComponent.h"
 #include "../Components/RigidBodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
@@ -94,7 +95,7 @@ void Game::LoadLevel(int level) {
     // Adding assets to the asset store
     assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
     assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
-    assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper.png");
+    assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
     assetStore->AddTexture(renderer, "tilemap-image", "./assets/tilemaps/jungle.png");
     assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
 
@@ -128,12 +129,13 @@ void Game::LoadLevel(int level) {
     chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
     chopper.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
     chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 1);
-    chopper.AddComponent<AnimationComponent>(2, 10, true);
+    chopper.AddComponent<AnimationComponent>(2, 15, true);
+    chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -70), glm::vec2(70, 0), glm::vec2(0, 70), glm::vec2(-70, 0));
 
     Entity radar = registry->CreateEntity();
     radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74, 10.0), glm::vec2(1.0, 1.0), 0.0);
     radar.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
-    radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
+    radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 1);
     radar.AddComponent<AnimationComponent>(8, 5, true);
 
     Entity tank = registry->CreateEntity();
@@ -172,6 +174,7 @@ void Game::Update() {
     // Perform the subscription of the events for all systems
     registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(eventBus);
+
     // Update the registry to process the entities that are waiting to be created/deleted
     registry->Update();
 
@@ -184,8 +187,6 @@ void Game::Update() {
 void Game::Render() {
     SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
     SDL_RenderClear(renderer);
-
-    // TODO: Render game objects...
 
     // Invoke all the systems that need to render
     registry->GetSystem<RenderSystem>().Update(renderer, assetStore);

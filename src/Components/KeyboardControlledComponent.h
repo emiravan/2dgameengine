@@ -13,7 +13,7 @@ struct KeyboardControlledComponent {
         this->upVelocity = upVelocity;
         this->rightVelocity = rightVelocity;
         this->downVelocity = downVelocity;
-        this->leftVelocity = upVelocity;
+        this->leftVelocity = leftVelocity;
     }
 };
 
