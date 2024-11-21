@@ -21,14 +21,14 @@ const unsigned int MAX_COMPONENTS = 32;
 typedef std::bitset<MAX_COMPONENTS> Signature;
 
 struct IComponent {
-  protected:
+    protected:
     static int nextId;
 };
 
 // Used to assign a unique id to a component type
 template <typename T>
 class Component : public IComponent {
-  public:
+    public:
     // Returns the unique id of Component<T>
     static int GetId() {
         static auto id = nextId++;
@@ -37,29 +37,20 @@ class Component : public IComponent {
 };
 
 class Entity {
-  private:
+    private:
     int id;
 
-  public:
-    Entity(int id)
-        : id(id) {};
+    public:
+    Entity(int id) : id(id) {};
     Entity(const Entity& entity) = default;
     void Kill();
     int GetId() const;
 
     Entity& operator=(const Entity& other) = default;
-    bool operator==(const Entity& other) const {
-        return id == other.id;
-    }
-    bool operator!=(const Entity& other) const {
-        return id != other.id;
-    }
-    bool operator>(const Entity& other) const {
-        return id > other.id;
-    }
-    bool operator<(const Entity& other) const {
-        return id < other.id;
-    }
+    bool operator==(const Entity& other) const { return id == other.id; }
+    bool operator!=(const Entity& other) const { return id != other.id; }
+    bool operator>(const Entity& other) const { return id > other.id; }
+    bool operator<(const Entity& other) const { return id < other.id; }
 
     template <typename TComponent, typename... TArgs>
     void AddComponent(TArgs&&... args);
@@ -80,11 +71,11 @@ class Entity {
 // The system processes entities that contain a specific signature
 ////////////////////////////////////////////////////////////////////////////////
 class System {
-  private:
+    private:
     Signature componentSignature;
     std::vector<Entity> entities;
 
-  public:
+    public:
     System() = default;
     ~System() = default;
 
@@ -104,17 +95,16 @@ class System {
 // A pool is just a vector (contiguous data) of objects of type T
 ////////////////////////////////////////////////////////////////////////////////
 class IPool {
-  public:
-    virtual ~IPool() {
-    }
+    public:
+    virtual ~IPool() {}
 };
 
 template <typename T>
 class Pool : public IPool {
-  private:
+    private:
     std::vector<T> data;
 
-  public:
+    public:
     Pool(int size = 100) {
         data.resize(size);
     }
@@ -161,7 +151,7 @@ class Pool : public IPool {
 // and components.
 ////////////////////////////////////////////////////////////////////////////////
 class Registry {
-  private:
+    private:
     int numEntities = 0;
 
     // Vector of component pools, each pool contains all the data for a certain compoenent type
@@ -184,7 +174,7 @@ class Registry {
     // List of free entity ids that were previously removed
     std::deque<int> freeIds;
 
-  public:
+    public:
     Registry() {
         Logger::Log("Registry constructor called");
     }

@@ -7,10 +7,9 @@
 #include "../ECS/ECS.h"
 #include "../EventBus/EventBus.h"
 #include "../Events/KeyPressedEvent.h"
-#include <SDL2/SDL.h>
 
 class KeyboardControlSystem : public System {
-  public:
+    public:
     KeyboardControlSystem() {
         RequireComponent<KeyboardControlledComponent>();
         RequireComponent<SpriteComponent>();

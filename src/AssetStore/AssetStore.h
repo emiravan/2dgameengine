@@ -2,23 +2,21 @@
 #define ASSETSTORE_H
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
 #include <map>
 #include <string>
 
 class AssetStore {
-  private:
+    private:
     std::map<std::string, SDL_Texture*> textures;
-    // TODO: create map for fonts
-    // TODO: create map for audio
+    // TODO: create a map for fonts
+    // TODO: create a map for audio
 
-  public:
+    public:
     AssetStore();
     ~AssetStore();
 
     void ClearAssets();
     void AddTexture(SDL_Renderer* renderer, const std::string& assetId, const std::string& filePath);
-
     SDL_Texture* GetTexture(const std::string& assetId);
 };
 

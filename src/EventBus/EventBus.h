@@ -6,16 +6,14 @@
 #include <functional>
 #include <list>
 #include <map>
-#include <memory>
 #include <typeindex>
-#include <utility>
 
-class IEventCallBack {
-  private:
+class IEventCallback {
+    private:
     virtual void Call(Event& e) = 0;
 
-  public:
-    virtual ~IEventCallBack() = default;
+    public:
+    virtual ~IEventCallback() = default;
 
     void Execute(Event& e) {
         Call(e);
@@ -23,8 +21,8 @@ class IEventCallBack {
 };
 
 template <typename TOwner, typename TEvent>
-class EventCallBack : public IEventCallBack {
-  private:
+class EventCallback : public IEventCallback {
+    private:
     typedef void (TOwner::*CallbackFunction)(TEvent&);
 
     TOwner* ownerInstance;
@@ -34,22 +32,22 @@ class EventCallBack : public IEventCallBack {
         std::invoke(callbackFunction, ownerInstance, static_cast<TEvent&>(e));
     }
 
-  public:
-    EventCallBack(TOwner* ownerInstance, CallbackFunction callbackFunction) {
+    public:
+    EventCallback(TOwner* ownerInstance, CallbackFunction callbackFunction) {
         this->ownerInstance = ownerInstance;
         this->callbackFunction = callbackFunction;
     }
 
-    virtual ~EventCallBack() override = default;
+    virtual ~EventCallback() override = default;
 };
 
-typedef std::list<std::unique_ptr<IEventCallBack>> HandlerList;
+typedef std::list<std::unique_ptr<IEventCallback>> HandlerList;
 
 class EventBus {
-  private:
+    private:
     std::map<std::type_index, std::unique_ptr<HandlerList>> subscribers;
 
-  public:
+    public:
     EventBus() {
         Logger::Log("EventBus constructor called!");
     }
@@ -63,26 +61,26 @@ class EventBus {
         subscribers.clear();
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
     // Subscribe to an event type <T>
     // In our implementation, a listener subscribes to an event
     // Example: eventBus->SubscribeToEvent<CollisionEvent>(this, &Game::onCollision);
-    ////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
     template <typename TEvent, typename TOwner>
     void SubscribeToEvent(TOwner* ownerInstance, void (TOwner::*callbackFunction)(TEvent&)) {
         if (!subscribers[typeid(TEvent)].get()) {
             subscribers[typeid(TEvent)] = std::make_unique<HandlerList>();
         }
-        auto subscriber = std::make_unique<EventCallBack<TOwner, TEvent>>(ownerInstance, callbackFunction);
+        auto subscriber = std::make_unique<EventCallback<TOwner, TEvent>>(ownerInstance, callbackFunction);
         subscribers[typeid(TEvent)]->push_back(std::move(subscriber));
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
     // Emit an event of type <T>
     // In our implementation, as soon as something emits an
     // event we go ahead and execute all the listener callback functions
-    // Example: eventBus->EmitEvent<CollisionEvent>(player,enemy);
-    ////////////////////////////////////////////////////////////////////////////////
+    // Example: eventBus->EmitEvent<CollisionEvent>(player, enemy);
+    ///////////////////////////////////////////////////////////////////////
     template <typename TEvent, typename... TArgs>
     void EmitEvent(TArgs&&... args) {
         auto handlers = subscribers[typeid(TEvent)].get();

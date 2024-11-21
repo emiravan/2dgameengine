@@ -2,9 +2,7 @@
 #include <chrono>
 #include <ctime>
 #include <iostream>
-#include <locale>
 #include <string>
-#include <vector>
 
 std::vector<LogEntry> Logger::messages;
 
@@ -27,6 +25,6 @@ void Logger::Err(const std::string& message) {
     LogEntry logEntry;
     logEntry.type = LOG_ERROR;
     logEntry.message = "ERR: [" + CurrentDateTimeToString() + "]: " + message;
-    std::cout << "\x1B[91m" << logEntry.message << "\033[0m" << std::endl;
     messages.push_back(logEntry);
+    std::cerr << "\x1B[91m" << logEntry.message << "\033[0m" << std::endl;
 }

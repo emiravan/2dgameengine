@@ -4,19 +4,16 @@
 #include "../Components/RigidBodyComponent.h"
 #include "../Components/TransformComponent.h"
 #include "../ECS/ECS.h"
-#include <string>
 
 class MovementSystem : public System {
-  public:
+    public:
     MovementSystem() {
-        // TODO:
         RequireComponent<TransformComponent>();
         RequireComponent<RigidBodyComponent>();
     }
 
     void Update(double deltaTime) {
-        // TODO:
-        //  Loop all entities that system is interested in
+        // Loop all entities that the system is interested in
         for (auto entity : GetSystemEntities()) {
             // Update entity position based on its velocity
             auto& transform = entity.GetComponent<TransformComponent>();

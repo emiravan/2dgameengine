@@ -6,11 +6,9 @@
 #include "../ECS/ECS.h"
 #include "../EventBus/EventBus.h"
 #include "../Events/CollisionEvent.h"
-#include <memory>
-#include <string>
 
 class CollisionSystem : public System {
-  public:
+    public:
     CollisionSystem() {
         RequireComponent<TransformComponent>();
         RequireComponent<BoxColliderComponent>();
@@ -19,6 +17,7 @@ class CollisionSystem : public System {
     void Update(std::unique_ptr<EventBus>& eventBus) {
         auto entities = GetSystemEntities();
 
+        // Loop all the entities that the system is interested in
         for (auto i = entities.begin(); i != entities.end(); i++) {
             Entity a = *i;
             auto aTransform = a.GetComponent<TransformComponent>();
@@ -28,7 +27,7 @@ class CollisionSystem : public System {
             for (auto j = i; j != entities.end(); j++) {
                 Entity b = *j;
 
-                // Bypass if we are trying to test the same enitity
+                // Bypass if we are trying to test the same entity
                 if (a == b) {
                     continue;
                 }
@@ -37,7 +36,7 @@ class CollisionSystem : public System {
                 auto bCollider = b.GetComponent<BoxColliderComponent>();
 
                 // Perform the AABB collision check between entities a and b
-                bool collisionHappened = checkAABBCollision(
+                bool collisionHappened = CheckAABBCollision(
                     aTransform.position.x + aCollider.offset.x,
                     aTransform.position.y + aCollider.offset.y,
                     aCollider.width,
@@ -48,15 +47,14 @@ class CollisionSystem : public System {
                     bCollider.height);
 
                 if (collisionHappened) {
-                    Logger::Log("Entity " + std::to_string(a.GetId()) + " is colliding with entity " + std::to_string(b.GetId()));
-
+                    Logger::Log("Entity " + std::to_string(a.GetId()) + " collided wih entity " + std::to_string(b.GetId()));
                     eventBus->EmitEvent<CollisionEvent>(a, b);
                 }
             }
         }
     }
 
-    bool checkAABBCollision(double aX, double aY, double aW, double aH, double bX, double bY, double bW, double bH) {
+    bool CheckAABBCollision(double aX, double aY, double aW, double aH, double bX, double bY, double bW, double bH) {
         return (
             aX < bX + bW &&
             aX + aW > bX &&

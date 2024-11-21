@@ -7,7 +7,7 @@
 #include <SDL2/SDL.h>
 
 class AnimationSystem : public System {
-  public:
+    public:
     AnimationSystem() {
         RequireComponent<SpriteComponent>();
         RequireComponent<AnimationComponent>();

@@ -1,9 +1,6 @@
 #include "./AssetStore.h"
 #include "../Logger/Logger.h"
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_surface.h>
-#include <string>
 
 AssetStore::AssetStore() {
     Logger::Log("AssetStore constructor called!");
@@ -29,7 +26,7 @@ void AssetStore::AddTexture(SDL_Renderer* renderer, const std::string& assetId, 
     // Add the texture to the map
     textures.emplace(assetId, texture);
 
-    Logger::Log("New texture added to the Asset Store with id = " + assetId);
+    Logger::Log("Texture added to the AssetStore with id " + assetId);
 }
 
 SDL_Texture* AssetStore::GetTexture(const std::string& assetId) {

@@ -5,27 +5,27 @@
 #include "../ECS/ECS.h"
 #include "../EventBus/EventBus.h"
 #include "../Events/CollisionEvent.h"
-#include <memory>
-#include <string>
 
 class DamageSystem : public System {
-  public:
+    public:
     DamageSystem() {
         RequireComponent<BoxColliderComponent>();
     }
 
     void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus) {
-        eventBus->SubscribeToEvent<CollisionEvent>(this, &DamageSystem::onCollision);
+        eventBus->SubscribeToEvent<CollisionEvent>(this, &DamageSystem::OnCollision);
     }
 
-    void onCollision(CollisionEvent& event) {
-        Logger::Log("The Damage System received an event collision between entities " + std::to_string(event.a.GetId()) + " and " + std::to_string(event.b.GetId()));
+    void OnCollision(CollisionEvent& event) {
+        std::string aId = std::to_string(event.a.GetId());
+        std::string bId = std::to_string(event.b.GetId());
+        Logger::Log("Collision event emitted: " + aId + " and " + bId);
+
         event.a.Kill();
         event.b.Kill();
     }
 
     void Update() {
-        // TODO:...
     }
 };
 

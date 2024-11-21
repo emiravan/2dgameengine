@@ -6,11 +6,9 @@
 #include <SDL2/SDL.h>
 
 class KeyPressedEvent : public Event {
-  public:
+    public:
     SDL_Keycode symbol;
-    KeyPressedEvent(SDL_Keycode symbol)
-        : symbol(symbol) {
-    }
+    KeyPressedEvent(SDL_Keycode symbol) : symbol(symbol) {}
 };
 
 #endif
