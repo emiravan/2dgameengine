@@ -21,8 +21,8 @@ class DamageSystem : public System {
         std::string bId = std::to_string(event.b.GetId());
         Logger::Log("Collision event emitted: " + aId + " and " + bId);
 
-        event.a.Kill();
-        event.b.Kill();
+        // event.a.Kill();
+        // event.b.Kill();
     }
 
     void Update() {
